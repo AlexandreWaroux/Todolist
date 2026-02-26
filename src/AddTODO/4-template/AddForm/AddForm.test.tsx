@@ -16,7 +16,7 @@ const setup = (props: AddFormProps) => {
 describe("AddForm component", () => {
   describe("basic", () => {
     it("should render correctly", () => {
-      const { component, field, button } = setup({});
+
       expect(component).toBeInTheDocument();
       expect(field).toBeInTheDocument();
       expect(button).toBeInTheDocument();
