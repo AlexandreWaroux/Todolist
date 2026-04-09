@@ -9,7 +9,7 @@ import DashboardContent from "../../4-templates/DashboardContent";
 export const Dashboard = () => {
   const [open, setOpen] = useState(true);
   const [selectedItem, setSelectedItem] = useState<string | undefined>();
-
+  // Test
   const toggleDrawer = () => {
     setOpen(!open);
   };
