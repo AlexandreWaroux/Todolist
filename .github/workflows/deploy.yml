@@ -1,41 +1,49 @@
-name: Déploiement vers Vercel
+name: Vérification d'une pull-request
 
-# Condition de déclenchement
 on:
-  push:
-    branches:
-      - main # Déclenchement sur la branche principale (main)
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
 
-    # Etapes
     steps:
-      # 1. Checkout du code source
-      - name: Checkout du code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Installation de Node.js et des dépendances
-      - name: Installation de Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "22"
-          cache: "npm"
+          node-version: 22
+          cache: 'npm'
 
-      - name: Installation des dépendances
-        run: npm install
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
 
-      # 3. Construire l'application React
-      - name: Build de l'application
-        run: npm run build
+      - name: Run tests
+        run: npm test
 
-      # 4. Déployer sur Vercel
-      - name: Déploiement
+  sonarcloud:
+    name: SonarCloud Scan
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Run SonarCloud Scan
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          npm install -g vercel
-          vercel --prod --token $VERCEL_TOKEN --yes
-
-#test
+          npx --yes sonarqube-scanner@4.2.0
